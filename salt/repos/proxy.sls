@@ -291,6 +291,39 @@ testing_overlay_devel_repo:
     - priority: 96
 {% endif %}
 
+{% if grains.get('proxy_containerized') | default('false', true) %}
+    {% grains['osfullname'] == 'SLES' and '15' in grains['osrelease'] %}
+
+    {% if grains['osrelease'] == '15' %}
+    {% set sle_version_path = '15' %}
+    {% elif grains['osrelease'] == '15.1' %}
+    {% set sle_version_path = '15-SP1' %}
+    {% elif grains['osrelease'] == '15.2' %}
+    {% set sle_version_path = '15-SP2' %}
+    {% elif grains['osrelease'] == '15.3' %}
+    {% set sle_version_path = '15-SP3' %}
+    {% elif grains['osrelease'] == '15.4' %}
+    {% set sle_version_path = '15-SP4' %}
+    {% endif %}
+
+    containers_pool_repo:
+      pkgrepo.managed:
+        - baseurl: http://{{ grains.get("mirror") | default("download.suse.de/ibs", true) }}/SUSE/Products/SLE-Module-Containers/{{ sle_version_path }}/x86_64/product/
+        - refresh: True
+
+    containers_updates_repo:
+      pkgrepo.managed:
+        - baseurl: http://{{ grains.get("mirror") | default("download.suse.de/ibs", true) }}/SUSE/Updates/SLE-Module-Containers/{{ sle_version_path }}/x86_64/update/
+        - refresh: True
+
+    hexagon_tools_repo:
+      pkgrepo.managed:
+        - baseurl: http://download.suse.de/ibs/Devel:/Galaxy:/Manager:/TEST:/Hexagon/SLE_15_SP4/
+        - refresh: True
+
+    {% endif %}
+{% endif %}
+
 {% endif %}
 
 # WORKAROUND: see github:saltstack/salt#10852

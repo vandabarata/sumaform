@@ -21,6 +21,11 @@ proxy-packages:
 {% else %}
       - SuSEfirewall2
 {% endif %}
+{% if grains.get('proxy_containerized') | default('false', true) %}
+      - podman
+      - unzip
+      - uyuni-proxy-systemd-services
+{% endif %}
     - require:
       - sls: repos
 
